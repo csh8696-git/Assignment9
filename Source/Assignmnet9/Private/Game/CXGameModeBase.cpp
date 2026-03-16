@@ -10,18 +10,6 @@ void ACXGameModeBase::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
 
-	//ACXGameStateBase* CXGameStateBase = GetGameState<ACXGameStateBase>();
-	//if (IsValid(CXGameStateBase) == true)
-	//{
-	//	CXGameStateBase->MulticastRPCBroadcastLoginMessage(TEXT("XXXXXXXX"));
-	//}
-
-	//ACXPlayerController* CXPlayerController = Cast<ACXPlayerController>(NewPlayer);
-	//if (IsValid(CXPlayerController) == true)
-	//{
-	//	AllPlayerControllers.Add(CXPlayerController);
-	//}
-
 	ACXPlayerController* CXPlayerController = Cast<ACXPlayerController>(NewPlayer);
 	if (IsValid(CXPlayerController) == true)
 	{
@@ -55,7 +43,7 @@ FString ACXGameModeBase::GenerateSecretNumber()
 	FString Result;
 	for (int32 i = 1; i <= 9; i++)
 	{
-		int32 Index = FMath::RandRange(0, Numbers.Num() -1);
+		int32 Index = FMath::RandRange(0, Numbers.Num() - 1);
 		Result.Append(FString::FromInt(Numbers[Index]));
 		Numbers.RemoveAt(Index);
 	}
@@ -84,7 +72,7 @@ bool ACXGameModeBase::IsGuessNumberString(const FString& InNumberString)
 
 			UniqueDigits.Add(C);
 		}
-		
+
 		if (bIsUnique == false)
 		{
 			break;
@@ -139,6 +127,7 @@ void ACXGameModeBase::PrintChatMessageString(ACXPlayerController* InChattingPlay
 	FString GuessNumberString = InChatMessageString.RightChop(Index);
 	if (IsGuessNumberString(GuessNumberString) == true)
 	{
+		IncreaseGuessCount(InChattingPlayerController);
 		FString JudgeResultString = JudgeResult(SecretNumberString, GuessNumberString);
 		for (TActorIterator<ACXPlayerController> It(GetWorld()); It; ++It)
 		{
@@ -160,5 +149,14 @@ void ACXGameModeBase::PrintChatMessageString(ACXPlayerController* InChattingPlay
 				CXPlayerController->ClientRPCPrintChatMessageString(InChatMessageString);
 			}
 		}
+	}
+}
+
+void ACXGameModeBase::IncreaseGuessCount(ACXPlayerController* InChattingPlayerController)
+{
+	ACXPlayerState* CXPS = InChattingPlayerController->GetPlayerState<ACXPlayerState>();
+	if (IsValid(CXPS) == true)
+	{
+		CXPS->CurrentGuessCount++;
 	}
 }
