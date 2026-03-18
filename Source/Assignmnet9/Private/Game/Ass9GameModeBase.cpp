@@ -95,7 +95,7 @@ FString AAss9GameModeBase::JudgeResult(const FString& InSecretNumberString, cons
 {
 	int32 StrikeCount = 0, BallCount = 0;
 
-	for (int32 i = 0; i < 3; i++)
+	for (int32 i = 0; i < BaseballNumberLength; i++)
 	{
 		if (InSecretNumberString[i] == InGuessNumberString[i])
 		{
@@ -134,6 +134,8 @@ void AAss9GameModeBase::PrintChatMessageString(AAss9PlayerController* InChatting
 			{
 				FString CombinedMessageString = InChatMessageString + TEXT(" -> ") + JudgeResultString;
 				Ass9PlayerController->ClientRPCPrintChatMessageString(CombinedMessageString);
+				int32 StrikeCount = FCString::Atoi(*JudgeResultString.Left(1));
+				JudgeGame(InChattingPlayerController, StrikeCount);
 			}
 		}
 	}
@@ -175,7 +177,7 @@ void AAss9GameModeBase::ResetGame()
 
 void AAss9GameModeBase::JudgeGame(AAss9PlayerController* InChattingPlayerController, int32 InStrikeCount)
 {
-	if (3 == InStrikeCount)
+	if (InStrikeCount == BaseballNumberLength)
 	{
 		AAss9PlayerState* A9PS = InChattingPlayerController->GetPlayerState<AAss9PlayerState>();
 		for (const auto& Ass9PlayerController : AllPlayerControllers)
