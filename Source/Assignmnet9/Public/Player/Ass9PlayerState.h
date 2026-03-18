@@ -16,6 +16,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	FString GetPlayerInfoString();
 
 public:
 	UPROPERTY(Replicated)

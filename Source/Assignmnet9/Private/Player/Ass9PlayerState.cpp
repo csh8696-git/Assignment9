@@ -16,3 +16,9 @@ void AAss9PlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 	DOREPLIFETIME(ThisClass, PlayerNameString);
 	DOREPLIFETIME(ThisClass, CurrentGuessCount);
 }
+
+FString AAss9PlayerState::GetPlayerInfoString()
+{
+	FString PlayerInfoString = PlayerNameString + TEXT("(") + FString::FromInt(CurrentGuessCount + 1) + TEXT("/") + FString::FromInt(MaxGuessCount) + TEXT(")");
+	return PlayerInfoString;
+}
