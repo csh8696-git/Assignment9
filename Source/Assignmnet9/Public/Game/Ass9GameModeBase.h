@@ -18,7 +18,9 @@ public:
 
 	FString GenerateSecretNumber();
 
-	bool IsGuessNumberString(const FString& InNumberString);
+	bool IsGuessNumberString(const FString& InNumberString, FString& OutErrorMessage);
+
+	bool CanTryGuess(AAss9PlayerController* InChattingPlayerController);
 
 	FString JudgeResult(const FString& InSecretNumberString,
 		const FString& InGuessNumberString);
@@ -39,4 +41,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game|Rules")
 	int32 BaseballNumberLength = 3;
+
+	int32 GuessNumberLength = 3;
 };

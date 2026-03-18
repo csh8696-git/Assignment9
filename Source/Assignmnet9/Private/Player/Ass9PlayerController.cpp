@@ -77,10 +77,17 @@ void AAss9PlayerController::SetChatMessageString(const FString& InChatMessageStr
 		AAss9PlayerState* A9PS = GetPlayerState<AAss9PlayerState>();
 		if (IsValid(A9PS) == true)
 		{
-			FString CombinedMessageString = A9PS->GetPlayerInfoString()
-				+ TEXT(": ") + InChatMessageString;
+			if (InChatMessageString.Len() == 3)
+			{
+				FString CombinedMessageString = A9PS->GetPlayerInfoString()
+					+ TEXT(": ") + InChatMessageString;
 
-			ServerRPCPrintChatMessageString(CombinedMessageString);
+				ServerRPCPrintChatMessageString(CombinedMessageString);
+			}
+			else
+			{
+				ClientRPCPrintChatMessageString(TEXT("Please enter a three-digit number"));
+			}
 		}
 	}
 }

@@ -55,32 +55,33 @@ FString AAss9GameModeBase::GenerateSecretNumber()
 	return Result;
 }
 
-bool AAss9GameModeBase::IsGuessNumberString(const FString& InNumberString)
+bool AAss9GameModeBase::IsGuessNumberString(const FString& InNumberString, FString& OutErrorMessage)
 {
 	bool bCanPlay = false;
 
 	do {
-		if (InNumberString.Len() != BaseballNumberLength)
-		{
-			break;
-		}
-
-		bool bIsUnique = true;
+		bool bIsDigit = true;
 		TSet<TCHAR> UniqueDigits;
 		for (TCHAR C : InNumberString)
 		{
 			if (FChar::IsDigit(C) == false || C == '0')
 			{
-				bIsUnique = false;
+				OutErrorMessage = TEXT("Please enter a number excluding 0");
+				bIsDigit = false;
 				break;
 			}
 
 			UniqueDigits.Add(C);
 		}
-		//
 
-		if (bIsUnique == false)
+		if (bIsDigit == false)
 		{
+			break;
+		}
+
+		if (UniqueDigits.Num() != BaseballNumberLength)
+		{
+			OutErrorMessage = TEXT("Please enter different numbers");
 			break;
 		}
 
@@ -89,6 +90,25 @@ bool AAss9GameModeBase::IsGuessNumberString(const FString& InNumberString)
 	} while (false);
 
 	return bCanPlay;
+}
+
+bool AAss9GameModeBase::CanTryGuess(AAss9PlayerController* InChattingPlayerController)
+{
+	if (IsValid(InChattingPlayerController) == false) return false;
+
+	AAss9PlayerState* A9PS = InChattingPlayerController->GetPlayerState<AAss9PlayerState>();
+	if (IsValid(A9PS) == true)
+	{
+		int32 CGC = A9PS->CurrentGuessCount;
+		int32 MGC = A9PS->MaxGuessCount;
+
+		if (CGC < MGC)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 FString AAss9GameModeBase::JudgeResult(const FString& InSecretNumberString, const FString& InGuessNumberString)
@@ -121,33 +141,34 @@ FString AAss9GameModeBase::JudgeResult(const FString& InSecretNumberString, cons
 
 void AAss9GameModeBase::PrintChatMessageString(AAss9PlayerController* InChattingPlayerController, const FString& InChatMessageString)
 {
-	int Index = InChatMessageString.Len() - 3;
-	FString GuessNumberString = InChatMessageString.RightChop(Index);
-	if (IsGuessNumberString(GuessNumberString) == true)
+	if (CanTryGuess(InChattingPlayerController) == false)
 	{
-		IncreaseGuessCount(InChattingPlayerController);
-		FString JudgeResultString = JudgeResult(SecretNumberString, GuessNumberString);
-		for (TActorIterator<AAss9PlayerController> It(GetWorld()); It; ++It)
-		{
-			AAss9PlayerController* Ass9PlayerController = *It;
-			if (IsValid(Ass9PlayerController) == true)
-			{
-				FString CombinedMessageString = InChatMessageString + TEXT(" -> ") + JudgeResultString;
-				Ass9PlayerController->ClientRPCPrintChatMessageString(CombinedMessageString);
-				int32 StrikeCount = FCString::Atoi(*JudgeResultString.Left(1));
-				JudgeGame(InChattingPlayerController, StrikeCount);
-			}
-		}
+		InChattingPlayerController->ClientRPCPrintChatMessageString(TEXT("No More Chances"));
 	}
 	else
 	{
-		for (TActorIterator<AAss9PlayerController> It(GetWorld()); It; ++It)
+		FString ErrMessage;
+		int Index = InChatMessageString.Len() - 3;
+		FString GuessNumberString = InChatMessageString.RightChop(Index);
+		if (IsGuessNumberString(GuessNumberString, ErrMessage) == true)
 		{
-			AAss9PlayerController* Ass9PlayerController = *It;
-			if (IsValid(Ass9PlayerController) == true)
+			IncreaseGuessCount(InChattingPlayerController);
+			FString JudgeResultString = JudgeResult(SecretNumberString, GuessNumberString);
+			for (TActorIterator<AAss9PlayerController> It(GetWorld()); It; ++It)
 			{
-				Ass9PlayerController->ClientRPCPrintChatMessageString(InChatMessageString);
+				AAss9PlayerController* Ass9PlayerController = *It;
+				if (IsValid(Ass9PlayerController) == true)
+				{
+					FString CombinedMessageString = InChatMessageString + TEXT(" -> ") + JudgeResultString;
+					Ass9PlayerController->ClientRPCPrintChatMessageString(CombinedMessageString);
+					int32 StrikeCount = FCString::Atoi(*JudgeResultString.Left(1));
+					JudgeGame(InChattingPlayerController, StrikeCount);
+				}
 			}
+		}
+		else
+		{
+			InChattingPlayerController->ClientRPCPrintChatMessageString(ErrMessage);
 		}
 	}
 }
