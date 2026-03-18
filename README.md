@@ -22,15 +22,13 @@ The server generates a 3-digit number -> Receiving number input from users in th
 
 PlayerState checks the given 3 chances and displays a confirmation message after entering a number.
 
-//승리, 무승부 후 게임 리셋 - 게임성을 위해 입력 후 승자/마지막 입력자가 추가 입력 시 리셋(추가 기능)
+//승리, 무승부 후 자동 리셋
 
-Game reset after win or draw - For gameplay, reset if the winner/last inputter makes an additional input after input (additional feature)
+Game automatic reset after win or draw
 
-//생성, 입력에서 예외처리 필요(구현 단계에서 거의 다 되어있겠지만 재확인 및 커스텀 예외 추가)
+//입력에서 예외처리
 
-Exception handling required for creation and input (although most of it is likely already done in the implementation phase, double-check and add custom exceptions)
-
-
+Exception handling from input
 
 
 
@@ -67,6 +65,4 @@ Language : C++
 IDE : Visual Studio 2022
 
 Version Control : Git
-
-
 
