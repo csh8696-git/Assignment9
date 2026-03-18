@@ -77,7 +77,10 @@ bool AAss9GameModeBase::IsGuessNumberString(const FString& InNumberString)
 
 			UniqueDigits.Add(C);
 		}
-		//
+		if (UniqueDigits.Num() != BaseballNumberLength)
+		{
+			bIsUnique = false;
+		}
 
 		if (bIsUnique == false)
 		{
